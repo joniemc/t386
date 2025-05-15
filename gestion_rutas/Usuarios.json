@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "username": "jmiralda",
+    "email": "jmiralda@unitec.edu",
+    "celphone": "95069826",
+    "password": "123"
+  },
+  {
+    "id": 2,
+    "username": "ahmendoza",
+    "email": "ahmendoza@unitec.edu",
+    "celphone": "96869828",
+    "password": "45678"
+  }
+]
