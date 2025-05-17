@@ -1,0 +1,16 @@
+[
+  {
+    "titulo": "Titulo 2",
+    "autor": "Autor 2",
+    "genero": "Romance",
+    "anioPublicacion": "2025",
+    "id": 2
+  },
+  {
+    "titulo": "Titulo 1",
+    "autor": "Autor 1",
+    "genero": "Ficción",
+    "anioPublicacion": "2025",
+    "id": 3
+  }
+]
