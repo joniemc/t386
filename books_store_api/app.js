@@ -5,9 +5,9 @@ const PORT = 3000;
 
 const pool = mysql.createPool({
     host:'localhost',
-    user:'root',
-    password:'root',
-    database:'libreria'
+    user:'root', // remplazar por su usuario de conexión
+    password:'root', // reemplazar por su contraseña
+    database:'libreria' // crear la base datos con los atributos solicitados
 });
 
 pool.getConnection((error, connetion)=>{
@@ -145,6 +145,7 @@ app.delete('/api/libros/:codigo',(req, res)=>{
 
     });
 });
+
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
