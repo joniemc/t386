@@ -19,6 +19,8 @@ pool.getConnection((error, connetion)=>{
     }
 });
 
+app.use(express.json());
+
 app.get('/api/libros',(req,res)=>{
     const sql = 'select * from libro';
 
@@ -91,8 +93,58 @@ app.get('/api/libros/filtropornombre/:autor',(req,res)=>{
     });
 
 });
-app.use(express.json());
 
+app.post('/api/libros', (req, res)=>{
+    const libro = req.body;
+
+    const sql = "insert into libro (titulo,autor,anio) values(?,?,?)";
+    pool.query(sql,[libro.titulo,libro.autor,libro.anio],(err,results)=>{
+        if(err){
+            return res.status(500).json({status:500,message:'Error al insertar el registro...',data:null});
+        }
+
+        libro.codigo = results.insertId;
+        return res.status(201).json({status:201,message:'Registro exitoso...',data:libro});
+    });
+
+});
+
+app.put('/api/libros',(req,res)=>{
+    const libro = req.body;
+
+    const sql = 'update libro set titulo=?, autor=?, anio=? where codigo = ?';
+    pool.query(sql,[libro.titulo,libro.autor,libro.anio,libro.codigo],(err,results)=>{
+        if(err){
+            return res.status(500).json({status:500,message:'Error al actualizar el registro...',data:null});
+        }
+
+        if(results.affectedRows === 0){
+            return res.status(403).json({status:403,message:'Registro no encontrado...',data:null});
+        }
+
+        res.status(200).json({status:200,message:'',data:libro});
+
+    });
+});
+
+app.delete('/api/libros/:codigo',(req, res)=>{
+    const codigo = parseInt(req.params.codigo);
+
+    const sql = 'delete from libro where codigo=?';
+
+    pool.query(sql,[codigo],(err,results)=>{
+        if(err){
+            return res.status(500).json({status:500,message:'Error al eliminar el registro...',data:null});
+        }
+
+        if(results.affectedRows === 0){
+            return res.status(403).json({status:403,message:'No se encontro el registro...',data:null});
+        }
+
+        return res.status(200).json({status:200,message:'Registro eliminado exitosamente...',data:null});
+
+    });
+});
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
