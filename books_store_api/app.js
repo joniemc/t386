@@ -1,7 +1,12 @@
 const express = require('express');
 const mysql = require('mysql2'); // importamos la libreria
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 3000;
+
+// npm install jsonwebtoken -> sirve para implementar seguridad en las APIs por jwt, generamos token y validamos
+// npm install bcrypt -> para encriptar contraseñas
 
 const pool = mysql.createPool({
     host:'localhost',
@@ -20,6 +25,43 @@ pool.getConnection((error, connetion)=>{
 });
 
 app.use(express.json());
+
+app.post('/api/login',async (req,res)=>{
+    const userAuth = req.body;
+
+    if(!userAuth.username || !userAuth.password){
+        return res.status(403).json({status:403,message:'Todos los campos son requeridos...'});
+    }
+
+    const sql = 'select * from user where username = ?';
+
+    pool.query(sql,[userAuth.username],async (err, results)=>{
+        if(err){
+            return res.status(500).json({status:500,message:'Error en la consulta...'});
+        }
+        
+        if(results.length === 0){
+            return res.status(401).json({status:401,message:'Credenciales invalidas...'});
+        }
+        
+        let user = results[0];
+        const isMatch = await bcrypt.compare(userAuth.password,user.password);
+
+        if(!isMatch){
+            return res.status(401).json({status:401,message:'Credenciales invalidas...'});
+        }
+        //Crear Token
+        res.status(200).json({status:200,message:'Success'});
+    });
+});
+
+app.get('/api/gethash/:painText',async (req,res)=>{
+    const plainText = req.params.painText;
+    const saltRound = 10;
+    const hash = await bcrypt.hash(plainText,saltRound);
+
+    return res.send(hash);
+});
 
 app.get('/api/libros',(req,res)=>{
     const sql = 'select * from libro';
