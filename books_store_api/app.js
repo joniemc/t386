@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 3000;
+const SECRET_KEY = 'MyClaveSecreta';
 
 // npm install jsonwebtoken -> sirve para implementar seguridad en las APIs por jwt, generamos token y validamos
 // npm install bcrypt -> para encriptar contraseñas
@@ -25,6 +26,25 @@ pool.getConnection((error, connetion)=>{
 });
 
 app.use(express.json());
+
+const authMiddleware = (req, res, next)=>{
+    const authHeader = req.headers['authorization'];
+
+    console.log(authHeader);
+
+    if(!authHeader){
+        return res.status(401).json({status:401, message:'Token no proporcionado...'});
+    }
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, SECRET_KEY, (err, user)=>{
+        if(err){
+            return res.status(401).json({status:401, message:'Token invalido o expirado...'});
+        }
+
+        next();
+    });
+};
 
 app.post('/api/login',async (req,res)=>{
     const userAuth = req.body;
@@ -50,12 +70,19 @@ app.post('/api/login',async (req,res)=>{
         if(!isMatch){
             return res.status(401).json({status:401,message:'Credenciales invalidas...'});
         }
+
         //Crear Token
-        res.status(200).json({status:200,message:'Success'});
+        const token = jwt.sign(
+            {username: user.username},
+            SECRET_KEY,
+            {expiresIn: '1h'}
+        );
+
+        res.status(200).json({status:200,message:'Success',token:token});
     });
 });
 
-app.get('/api/gethash/:painText',async (req,res)=>{
+app.get('/api/gethash/:painText', authMiddleware, async (req,res)=>{
     const plainText = req.params.painText;
     const saltRound = 10;
     const hash = await bcrypt.hash(plainText,saltRound);
@@ -63,7 +90,7 @@ app.get('/api/gethash/:painText',async (req,res)=>{
     return res.send(hash);
 });
 
-app.get('/api/libros',(req,res)=>{
+app.get('/api/libros', authMiddleware, (req,res)=>{
     const sql = 'select * from libro';
 
     pool.query(sql,(err,results)=>{
