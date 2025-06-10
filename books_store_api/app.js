@@ -103,7 +103,7 @@ app.get('/api/libros', authMiddleware, (req,res)=>{
 
 });
 
-app.get('/api/libros/:codigo',(req,res)=>{
+app.get('/api/libros/:codigo', authMiddleware,(req,res)=>{
 
     const codigo = parseInt(req.params.codigo);
     const sql = 'select * from libro where codigo = ?';
@@ -118,7 +118,7 @@ app.get('/api/libros/:codigo',(req,res)=>{
 
 });
 
-app.get('/api/libros/filtro/:tipo/:flag',(req,res)=>{
+app.get('/api/libros/filtro/:tipo/:flag', authMiddleware, (req,res)=>{
     const flag = req.params.flag;
     const tipo = parseInt(req.params.tipo);
     if(tipo === 1){
@@ -148,7 +148,7 @@ app.get('/api/libros/filtro/:tipo/:flag',(req,res)=>{
     
 });
 
-app.get('/api/libros/filtropornombre/:autor',(req,res)=>{
+app.get('/api/libros/filtropornombre/:autor', authMiddleware, (req,res)=>{
     const autor = req.params.autor;
     const sql = "select * from libro where autor like ?";
 
@@ -163,7 +163,7 @@ app.get('/api/libros/filtropornombre/:autor',(req,res)=>{
 
 });
 
-app.post('/api/libros', (req, res)=>{
+app.post('/api/libros', authMiddleware, (req, res)=>{
     const libro = req.body;
 
     const sql = "insert into libro (titulo,autor,anio) values(?,?,?)";
@@ -178,7 +178,7 @@ app.post('/api/libros', (req, res)=>{
 
 });
 
-app.put('/api/libros',(req,res)=>{
+app.put('/api/libros', authMiddleware, (req,res)=>{
     const libro = req.body;
 
     const sql = 'update libro set titulo=?, autor=?, anio=? where codigo = ?';
@@ -196,7 +196,7 @@ app.put('/api/libros',(req,res)=>{
     });
 });
 
-app.delete('/api/libros/:codigo',(req, res)=>{
+app.delete('/api/libros/:codigo', authMiddleware, (req, res)=>{
     const codigo = parseInt(req.params.codigo);
 
     const sql = 'delete from libro where codigo=?';
