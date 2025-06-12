@@ -1,50 +1,17 @@
 const express = require('express');
-const mysql = require('mysql2'); // importamos la libreria
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const pool = require('./config/db');
+const authMiddleware = require('./middleware/authMiddleware');
 const app = express();
-const PORT = 3000;
-const SECRET_KEY = 'MyClaveSecreta';
+const PORT = process.env.PORT;
+
+require('dotenv').config();
 
 // npm install jsonwebtoken -> sirve para implementar seguridad en las APIs por jwt, generamos token y validamos
 // npm install bcrypt -> para encriptar contraseñas
 
-const pool = mysql.createPool({
-    host:'localhost',
-    user:'root', // remplazar por su usuario de conexión
-    password:'root', // reemplazar por su contraseña
-    database:'libreria' // crear la base datos con los atributos solicitados
-});
-
-pool.getConnection((error, connetion)=>{
-    if(error){
-        console.log('Error de conexión...');
-    }
-    else{
-        console.log('Conexión exitosa...');
-    }
-});
-
 app.use(express.json());
-
-const authMiddleware = (req, res, next)=>{
-    const authHeader = req.headers['authorization'];
-
-    console.log(authHeader);
-
-    if(!authHeader){
-        return res.status(401).json({status:401, message:'Token no proporcionado...'});
-    }
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, SECRET_KEY, (err, user)=>{
-        if(err){
-            return res.status(401).json({status:401, message:'Token invalido o expirado...'});
-        }
-
-        next();
-    });
-};
 
 app.post('/api/login',async (req,res)=>{
     const userAuth = req.body;
@@ -74,7 +41,7 @@ app.post('/api/login',async (req,res)=>{
         //Crear Token
         const token = jwt.sign(
             {username: user.username},
-            SECRET_KEY,
+            process.env.SECRET_KEY,
             {expiresIn: '1h'}
         );
 
