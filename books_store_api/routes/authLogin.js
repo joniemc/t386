@@ -42,4 +42,16 @@ router.post('/api/login',async (req,res)=>{
     });
 });
 
+router.get('/api/users',(req,res)=>{
+    sql = "select code,username from user";
+    pool.query(sql, (err,results)=>{
+        if(err){
+            console.error(err);
+            return res.status(500).json({status:500, message: 'Error en la consulta...',data:null});
+        }
+
+        res.status(200).json({status:200, message:'Success',data:results});
+    });
+});
+
 module.exports = router;
